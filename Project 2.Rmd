@@ -64,11 +64,26 @@ head(HumanImpact)
 
 And a plot showing the data, gives a good idea of the scale of the Tornado issue.
 ```{r}
-plotdata <- HumanImpact[1:10, 2:4]
-plotmatrix <- data.matrix(plotdata, rownames.force = NA)
-barplot(t(plotmatrix))
+plotdata <- HumanImpact[1:10, 1:4]
+
+plotdata$EVTYPE <- factor(plotdata$EVTYPE)
+
+n = c(plotdata$INJURIES)
+s = c(plotdata$FATALITIES)
+df = data.frame(n, s)
+dft <- t(df)
+colnames(dft) <- plotdata$EVTYPE
+barplot(as.matrix(dft),cex.names = .6,col=c("black","red"),las = 2)
 ```
 
+
+OTHER POTENTIAL PLOT... 
+
+```{r}
+plot(plotdata$INJURIES,type = "l", col = "black", ylab = "Count of injuries/fatalites",xlab = "event type",xaxt = "n")
+lines(plotdata$FATALITIES,type = "l", col = "red")
+axis(1, at=1:10, labels=plotdata$EVTYPE)
+```
 
 ###Results
 
