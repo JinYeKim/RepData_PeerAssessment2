@@ -14,17 +14,61 @@ Immediately after the title, there should be a synopsis which describes and summ
 ###Data Processing
 There should be a section titled Data Processing which describes (in words and code) how the data were loaded into R and processed for analysis. In particular, your analysis must start from the raw CSV file containing the data. You cannot do any preprocessing outside the document. If preprocessing is time-consuming you may consider using the cache = TRUE option for certain code chunks.
 
-First we need to read in the data.
+Now we need to read in the data.
 ```{r, cache=TRUE}
 StormData <- read.csv("repdata-data-StormData.csv.bz2")
+head(StormData)
 ```
 
-After analyizing the data structure and reading the information from http://www.ncdc.noaa.gov/stormevents/details.jsp as found on the course forums, once can say we should only investigate incidents after 1996. Otherwise tornados will have an unusally high amount of injuries & damage. This still gives us 20 years of data to work with, time permitting we can look back at the rest of the pre-1996 data and see if its relatively inline with the post 1996 data.
+And create the 48 offical weather events as described in the student forums.
+```{r}
+weather48 <- c("Astronomical Low Tide", "Avalanche", "Blizzard", "Coastal Flood", "Cold/Wind Chill", "Debris Flow" , "Dense Fog", "Dense Smoke", "Drought", "Dust Devil", "Dust Storm", "Excessive Heat", "Extreme Cold/Wind Chill", "Flash Flood", "Flood", "Frost/Freeze", "Funnel Cloud", "Freezing Fog", "Hail", "Heat", "Heavy Rain", "Heavy Snow", "High Surf", "High Wind","Hurricane (Typhoon)", "Ice Storm", "Lake-Effect Snow", "Lakeshore Flood", "Lightning", "Marine Hail", "Marine High Wind", "Marine Strong Wind", "Marine Thunderstorm Wind", "Rip Current", "Seiche", "Sleet", "Storm Surge/Tide", "Strong Wind", "Thunderstorm Wind", "Tornado", "Tropical Depression", "Tropical Storm", "Tsunami", "V olcanic Ash", "Waterspout", "Wildfire", "Winter Storm", "Winter Weather")
+```
 
-So we need to extract the data after 1996.
+After analyizing the data structure and reading the information from http://www.ncdc.noaa.gov/stormevents/details.jsp as found on the course forums, one can say we should only investigate incidents after 1996. Otherwise tornados will have an unusally high amount of injuries & damage. This still gives us 20 years of data to work with, time permitting we can look back at the rest of the pre-1996 data and see if its relatively inline with the post 1996 data.
+
+So we need to extract the data after 1996. So first convert the dates and check that everything has converted properly.
 ```{r,cache=TRUE}
-
+StormData$BGN_DATE <- as.Date(StormData$BGN_DATE, format = "%m/%d/%Y %H:%M:%S")
+class(StormData$BGN_DATE)
+sum(is.na(StormData$BGN_DATE))
 ```
+
+Now we want to subset the data to a working range of data that we want to deal with.
+```{r,cache=TRUE}
+WorkingData <- subset(StormData, BGN_DATE >= "1996-01-01")
+```
+
+First we want to investigate how harmful to population health, i.e fatalities & injuries.
+```{r, cache=TRUE}
+HumanFatal <- aggregate(FATALITIES ~ EVTYPE,WorkingData,sum)
+HumanInjury <- aggregate(INJURIES ~ EVTYPE,WorkingData,sum)
+HumanImpact <- merge(HumanInjury, HumanFatal, by = "EVTYPE")
+```
+
+We now have a subset of data of the event types & number of injuries & fatalities that each of the event types have caused. Taking a look at the data `view(HumanImpact)` within RStudio we can see that a lot of the values have 0 for either fatalities or injuries. So lets go ahead and subset the data set down some more.
+```{r}
+HumanImpact <- subset(HumanImpact, (INJURIES > 0 & FATALITIES > 0))
+```
+
+We now want to get a combined total of injuries & fatalities for sorting on
+```{r}
+HumanImpact$Combined <- HumanImpact$INJURIES + HumanImpact$FATALITIES
+HumanImpact <- HumanImpact[order(-HumanImpact$Combined),]
+```
+
+We now have a sorted plot of the most impact to human health. Of course taking a look at the previous sets of data there are some issues with this data mainly that some variables are written differently than others. However from a cursuory glance at the data this isnt an issue as the values do not add anywhere near the values of Tornado which is the clear "human impact" here.
+```{r}
+head(HumanImpact)
+```
+
+And a plot showing the data, gives a good idea of the scale of the Tornado issue.
+```{r}
+plotdata <- HumanImpact[1:10, 2:4]
+plotmatrix <- data.matrix(plotdata, rownames.force = NA)
+barplot(t(plotmatrix))
+```
+
 
 ###Results
 
