@@ -118,11 +118,16 @@ head(EconData)
 ```
 
 We will now repeate the same process as preping the injury data.
-1. Convert `EVTYPE` to a factor to remove the levels 
-2. Aggregate the damages by `EVTYPE` 
-3. Add up these damages to sort by largest 
-4. Sort code 
-4. Grab the top 10 items for plotting 
+
+1. Convert `EVTYPE` to a factor to remove the levels
+
+2. Aggregate the damages by `EVTYPE`
+
+3. Add up these damages to sort by largest
+
+4. Sort code
+
+5. Grab the top 10 items for plotting 
 ```{r, cache=TRUE}
 EconData$EVTYPE <- factor(EconData$EVTYPE)
 EconPlot <- aggregate(cbind(PROPDMG,CROPDMG) ~ EVTYPE, EconData, sum)
