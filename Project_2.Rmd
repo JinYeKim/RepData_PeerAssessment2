@@ -9,10 +9,10 @@ output: html_document
 NOAA Storm Database Severe Weather Analysis
 
 ###Synopsis:
-Immediately after the title, there should be a synopsis which describes and summarizes your analysis in at most 10 complete sentences.
+The NOAA has a database on severe weather. This database goes back to the 1950's however was standarized in 1996. The data covers major weather events and their impact on human lives, economic impact along with location data. By analyizing the data one can gain an understanding of the impact the different weather events pose. This data can then be used by government and private individuals to prepare for future events as well as understand what has the greatest impacts. This analysis plans to understand what type of event have the greatest impact on human population health and economic impact.
 
 ###Data Processing
-There should be a section titled Data Processing which describes (in words and code) how the data were loaded into R and processed for analysis. In particular, your analysis must start from the raw CSV file containing the data. You cannot do any preprocessing outside the document. If preprocessing is time-consuming you may consider using the cache = TRUE option for certain code chunks.
+Data processing section will walk through the steps taken to process & create the plots used in the data analysis.
 
 Start with loading the librarys
 ```{r}
@@ -75,7 +75,7 @@ Death <- c(plotdata$FATALITIES)
 HumanDF <- data.frame(Injury, Death)
 ```
 
-Then transpose the dataframe with `t()` and apply the event names across so that the x-axis is properly labeled. The `dtf` dataframe will be used to plot out the data in the results section.
+Then transpose the dataframe with `t()` and apply the event names across so that the x-axis is properly labeled. The `HumanDF` dataframe will be used to plot out the data in the results section.
 ```{r, cache=TRUE}
 HumanDF <- t(HumanDF)
 colnames(HumanDF) <- plotdata$EVTYPE
@@ -83,7 +83,7 @@ colnames(HumanDF) <- plotdata$EVTYPE
 
 Now we move onto the second question, regarding economic consequences. First we need to take a look at the data:
 ```{r, cache=TRUE}
-head(WorkingData)
+head(WorkingData,1)
 ```
 
 From this we can identify four columns of data that we need to utilize, `PROPDMG`, `PROPDMGEXP`,`CROPDMG` & `CROPDMGEXP` in addtion to `EVTYPE`. So lets subset out this data into our new working variable, lets call it `EconData`
